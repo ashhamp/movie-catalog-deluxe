@@ -31,6 +31,7 @@ end
 
 get '/actors/:id' do
   @actor_id = params[:id]
+
   @actor_movies = db_connection do |conn|
     conn.exec("SELECT actors.name, actors.id AS actor_id, movies.title, movies.id AS movie_id, cast_members.character
     FROM cast_members JOIN actors ON cast_members.actor_id = actors.id
@@ -42,12 +43,35 @@ get '/actors/:id' do
 end
 
 get '/movies' do
-  @movies = db_connection do |conn|
-    conn.exec('SELECT movies.id, movies.title, movies.year, movies.rating, genres.name AS genre, studios.name AS studio
-    FROM movies
-    LEFT JOIN genres ON movies.genre_id = genres.id
-    LEFT JOIN studios ON movies.studio_id = studios.id
-    ORDER BY movies.title;')
+
+  order_by = params['order']
+  if order_by == 'year'
+    @movies = db_connection do |conn|
+      conn.exec('SELECT movies.id, movies.title, movies.year, movies.rating, genres.name AS genre, studios.name AS studio
+      FROM movies
+      LEFT JOIN genres ON movies.genre_id = genres.id
+      LEFT JOIN studios ON movies.studio_id = studios.id
+      ORDER BY movies.year;')
+    end
+
+  elsif order_by == 'rating'
+    @movies = db_connection do |conn|
+      conn.exec('SELECT movies.id, movies.title, movies.year, movies.rating, genres.name AS genre, studios.name AS studio
+      FROM movies
+      LEFT JOIN genres ON movies.genre_id = genres.id
+      LEFT JOIN studios ON movies.studio_id = studios.id
+      ORDER BY movies.rating DESC;')
+    end
+
+  else
+
+    @movies = db_connection do |conn|
+      conn.exec('SELECT movies.id, movies.title, movies.year, movies.rating, genres.name AS genre, studios.name AS studio
+      FROM movies
+      LEFT JOIN genres ON movies.genre_id = genres.id
+      LEFT JOIN studios ON movies.studio_id = studios.id
+      ORDER BY movies.title;')
+    end
   end
   # binding.pry
   erb :'movies/index'
@@ -65,5 +89,4 @@ get '/movies/:id' do
     WHERE movies.id = '#{@movie_id}'")
   end
     erb :'movies/show'
-
 end

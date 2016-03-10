@@ -5,6 +5,12 @@
     <title>Movies</title>
   </head>
   <body>
+    <form action="/movies" method="get">
+      <input type="submit" name="order" value="year">
+      <input type="submit" name="order" value="rating">
+      <a href="/movies"> <input type="button" value="title"></a>
+    </form>
+
   <ul>
     <% @movies.each do |movie| %>
     <li>

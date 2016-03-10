@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <h2> <%= @movie_actors.first['title'] %> </h2>
+    <h4>Released: <%= @movie_actors.first['year'] %> --
+    Genre: <%= @movie_actors.first['genre'] %> --
+    Rating: <%= @movie_actors.first['rating'] %> --
+  Studio: <%= @movie_actors.first['studio'] %> </h4>
+
+
+
+    <ul>
+      <% @movie_actors.each do |movie_info| %>
+      <li>
+        <a href="/actors/<%= movie_info['actor_id'] %>"> <%=movie_info['actor']%></a> as <%= movie_info['character'] %>
+      </li> <br>
+       <% end %>
+    </ul>
+
+  </body>
+</html>

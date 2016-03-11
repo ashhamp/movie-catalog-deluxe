@@ -82,10 +82,10 @@ get '/movies/:id' do
   @movie_actors = db_connection do |conn|
     conn.exec("SELECT movies.id, movies.title, movies.rating, movies.year, genres.name AS genre, studios.name AS studio, actors.name AS actor, actors.id AS actor_id, cast_members.character
     FROM movies
-    JOIN cast_members ON movies.id = cast_members.movie_id
-    JOIN actors ON cast_members.actor_id = actors.id
-    JOIN genres ON movies.genre_id = genres.id
-    JOIN studios ON movies.studio_id = studios.id
+    LEFT JOIN cast_members ON movies.id = cast_members.movie_id
+    LEFT JOIN actors ON cast_members.actor_id = actors.id
+    LEFT JOIN genres ON movies.genre_id = genres.id
+    LEFT JOIN studios ON movies.studio_id = studios.id
     WHERE movies.id = '#{@movie_id}'")
   end
     erb :'movies/show'

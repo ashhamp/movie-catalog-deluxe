@@ -19,12 +19,53 @@ def db_connection
   end
 end
 
+def total_actors
+  total = db_connection do |conn|
+    sql_query = "SELECT COUNT(*) AS total FROM actors"
+    conn.exec(sql_query)
+  end
+  total.first['total'].to_f
+end
+
+def total_movies
+  total = db_connection do |conn|
+    sql_query = "SELECT COUNT(*) AS total FROM movies"
+    conn.exec(sql_query)
+  end
+  total.first['total'].to_f
+end
+
+def total_pages_actors(per_page)
+  (total_actors / per_page).ceil
+end
+
+def total_pages_movies(per_page)
+  (total_movies / per_page).ceil
+end
+
 get '/actors' do
 
-  @actors = db_connection do |conn|
-    conn.exec('SELECT name, id FROM actors ORDER BY name')
-  end
-  # binding.pry
+@page = params['page'].to_i
+
+if @page < 2
+  @page = 1
+elsif @page > total_pages_actors(20)
+  @page = total_pages_actors(20)
+end
+
+if @page == 1
+  @offset = 0
+else
+  @offset = (@page - 1) * 20
+end
+
+@total_pages = total_pages_actors(20)
+
+@actors = db_connection do |conn|
+  sql_query = 'SELECT * FROM actors ORDER BY name LIMIT 20 OFFSET ($1)'
+  data = ["#{@offset}"]
+  conn.exec(sql_query, data)
+end
 
   erb :'actors/index'
 end
@@ -44,36 +85,57 @@ end
 
 get '/movies' do
 
+  @page = params['page'].to_i
+
+  if @page < 2
+    @page = 1
+  elsif @page > total_pages_movies(20)
+    @page = total_pages_movies(20)
+  end
+
+  if @page == 1
+    @offset = 0
+  else
+    @offset = (@page - 1) * 20
+  end
+
+  @total_pages = total_pages_movies(20)
+
   order_by = params['order']
   if order_by == 'year'
     @movies = db_connection do |conn|
-      conn.exec('SELECT movies.id, movies.title, movies.year, movies.rating, genres.name AS genre, studios.name AS studio
+      sql_query = "SELECT movies.id, movies.title, movies.year, movies.rating, genres.name AS genre, studios.name AS studio
       FROM movies
       LEFT JOIN genres ON movies.genre_id = genres.id
       LEFT JOIN studios ON movies.studio_id = studios.id
-      ORDER BY movies.year;')
+      ORDER BY movies.year LIMIT 20 OFFSET ($1))"
+      data = ["#{@offset}"]
+      conn.exec(sql_query, data)
     end
 
   elsif order_by == 'rating'
     @movies = db_connection do |conn|
-      conn.exec('SELECT movies.id, movies.title, movies.year, movies.rating, genres.name AS genre, studios.name AS studio
+      sql_query = 'SELECT movies.id, movies.title, movies.year, movies.rating, genres.name AS genre, studios.name AS studio
       FROM movies
       LEFT JOIN genres ON movies.genre_id = genres.id
       LEFT JOIN studios ON movies.studio_id = studios.id
-      ORDER BY movies.rating DESC;')
+      ORDER BY movies.rating DESC NULLS LAST LIMIT 20 OFFSET ($1)'
+      data = ["#{@offset}"]
+      conn.exec(sql_query, data)
     end
 
   else
 
     @movies = db_connection do |conn|
-      conn.exec('SELECT movies.id, movies.title, movies.year, movies.rating, genres.name AS genre, studios.name AS studio
+      sql_query = 'SELECT movies.id, movies.title, movies.year, movies.rating, genres.name AS genre, studios.name AS studio
       FROM movies
       LEFT JOIN genres ON movies.genre_id = genres.id
       LEFT JOIN studios ON movies.studio_id = studios.id
-      ORDER BY movies.title;')
+      ORDER BY movies.title LIMIT 20 OFFSET ($1)'
+      data = ["#{@offset}"]
+      conn.exec(sql_query, data)
     end
   end
-  # binding.pry
   erb :'movies/index'
 end
 

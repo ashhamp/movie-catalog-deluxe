@@ -5,6 +5,7 @@
     <title>Actors</title>
   </head>
   <body>
+    <h2>Actors:</h2>
   <ul>
     <% @actors.each do |actor| %>
     <li>
@@ -12,6 +13,13 @@
     </li>
     <% end %>
   </ul>
+
+<div class="pagination">
+  <a href="/actors"> <button type="button" name="button">first</button></a>
+  <a href="/actors?page=<%= @page - 1 %>"><button type="button" name="button">previous</button></a>
+  <a href="/actors?page=<%= @page + 1 %>"><button type="button" name="button">next</button></a>
+  <a href="/actors?page=<%= @total_pages %>"><button type="button" name="button">last</button></a>
+</div>
 
   </body>
 </html>

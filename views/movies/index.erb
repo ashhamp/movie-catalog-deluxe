@@ -21,5 +21,12 @@
     <% end %>
   </ul>
 
+  <div class="pagination">
+    <a href="/movies"> <button type="button" name="button">first</button></a>
+    <a href="/movies?page=<%= @page - 1 %>"><button type="button" name="button">previous</button></a>
+    <a href="/movies?page=<%= @page + 1 %>"><button type="button" name="button">next</button></a>
+    <a href="/movies?page=<%= @total_pages %>"><button type="button" name="button">last</button></a>
+  </div>
+
   </body>
 </html>
